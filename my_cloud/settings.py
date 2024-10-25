@@ -136,10 +136,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
-    ]
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
 }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
 
 # LOGIN_REDIRECT_URL = '/'

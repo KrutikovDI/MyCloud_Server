@@ -4,4 +4,5 @@ from media_app.models import Media
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ['user', 'mudia', 'uploaded_at', 'comment']
+        fields = ['id', 'user', 'media', 'comment', 'uploaded_at']
+        read_only_fields = ['uploaded_at']
