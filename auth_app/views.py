@@ -1,59 +1,37 @@
 import json
 from django.shortcuts import render, get_object_or_404
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ViewSet, ModelViewSet
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import viewsets, status
+from rest_framework.exceptions import ValidationError
 
 
 from auth_app.models import Users
 from auth_app.serializers import UsersSerializer
+from auth_app.serializers import UserLoginSerializer
 
-# def chat_enter(request):
-#     message = 'вы вошли в систему'
-#     print('вы вошли в систему')
-#     return HttpResponse(message)
 
-# def users_list(request):
-#     users = Users.objects.all()
-#     return HttpResponse(users)
-
-# def user_login(request, user_login):
-#     user = get_object_or_404(Users, login=user_login)
-#     return HttpResponse(user)
-
-@api_view(['POST'])
-def chat_enter(request):
-    data = request.body.decode('utf-8')
-    data_json = json.loads(data)
-    print(data_json)
-    userRegistration = Users.objects.get(login=data_json['login'])
-    serializer_user = UsersSerializer(userRegistration)
-    if data_json['password'] == serializer_user.data['password'] and data_json['admin'] == serializer_user.data['admin']:
-        return Response(serializer_user.data, 200)
-    elif data_json['password'] != serializer_user.data['password']:
-        return Response(status=401)
-    elif data_json['admin'] != serializer_user.data['admin']:
-        return Response(status=402)
-    
-    # print(serializer_user.data['password'])
-    # print(data_json['password'])
-    # print(userReg)
-    # return Response(serializer_user.data)
-    
-
-# @api_view(['GET'])
-# def users_list(request):
-#     users = Users.objects.all()
-#     serializer_user = UsersSerializer(users, many=True)
-#     print('получен запрос на users')
-#     return Response(serializer_user.data)
-
-# class UserView(ListAPIView):
-#     queryset = Users.objects.all()
-#     serializer_class = UsersSerializer
-
-class UsersViewSet(ModelViewSet):
+class UsersViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
-    filterset_fields = ['fullName', 'password',]
+    @action(detail=False, methods=['post'], url_path='login')
+    def login(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+        try:
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            user = serializer.validated_data["user"]
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'fullName': user.fullName,
+                'login': user.login,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+                }, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response({"error": ["Произошла непредвиденная ошибка на сервере."]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

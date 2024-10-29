@@ -20,16 +20,17 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 
-from auth_app.views import chat_enter, UsersViewSet
+from auth_app.views import UsersViewSet
 from media_app.views import MediaViewSet
 
 r = DefaultRouter()
-r.register('registration', UsersViewSet)
 r.register('files', MediaViewSet)
+r.register('users', UsersViewSet, basename='users')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('enter/', chat_enter, name='enter'),
+    # path('login/', userLogin.as_view(), name='login'),
+    # path('registration/', userRegistration, name='regisration')
     # path('api/', include(r.urls)),
 ] + r.urls
 
