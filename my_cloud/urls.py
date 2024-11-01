@@ -21,7 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from auth_app.views import UsersViewSet
-from media_app.views import MediaViewSet
+from media_app.views import MediaViewSet, download_file
 
 r = DefaultRouter()
 r.register('files', MediaViewSet)
@@ -29,7 +29,7 @@ r.register('users', UsersViewSet, basename='users')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('login/', userLogin.as_view(), name='login'),
+    path('download/<uuid:uuid>/', download_file, name='download_file'),
     # path('registration/', userRegistration, name='regisration')
     # path('api/', include(r.urls)),
 ] + r.urls
