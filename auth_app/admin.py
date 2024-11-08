@@ -5,5 +5,5 @@ from auth_app.models import Users
 
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ['fullName', 'login', 'email', 'password', ]
+    list_display = ['fullName', 'login', 'email', 'password', 'is_superuser']
     list_filter = []

@@ -1,5 +1,6 @@
 import json
 import logging
+from django.db.models import Count, Sum
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, action
@@ -24,6 +25,13 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return super().get_queryset().annotate(
+        media_count=Count('media_files'),
+        media_size=Sum('media_files__size')
+    )
+    
     @action(detail=False, methods=['post'], url_path='login', permission_classes=[AllowAny])
     def login(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -33,6 +41,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             user = serializer.validated_data["user"]
             token, create = Token.objects.get_or_create(user=user)
             return Response({
+                'is_superuser': user.is_superuser,
                 'is_active': user.is_active,
                 'fullName': user.fullName,
                 'login': user.login,
@@ -42,6 +51,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             logger.error(f"Ошибка при входе: {error}")
             return Response({"error": ["Произошла непредвиденная ошибка на сервере."]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+    
     @action(detail=False, methods=['post'], url_path='register', permission_classes=[AllowAny])
     def register(self, request):
         serializer = UsersSerializer(data = request.data)
@@ -50,6 +60,7 @@ class UsersViewSet(viewsets.ModelViewSet):
                 user = serializer.save()
                 token, create = Token.objects.get_or_create(user=user)
                 return Response({
+                    'is_superuser': user.is_superuser,
                     'is_active': user.is_active,
                     'fullName': user.fullName,
                     'login': user.login,

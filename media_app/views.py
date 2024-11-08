@@ -40,8 +40,6 @@ class MediaViewSet(viewsets.ModelViewSet):
         file_extension = os.path.splitext(old_file_path)[1]
         new_file_name = f'{new_name}{file_extension}'
         new_file_path = os.path.join(settings.MEDIA_ROOT, 'documents', new_file_name)
-        print(old_file_path)
-        print(new_file_path)
         try:
             os.rename(old_file_path, new_file_path)
             document.media.name = f'documents/{new_file_name}'
