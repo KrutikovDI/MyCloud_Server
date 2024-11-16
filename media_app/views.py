@@ -22,7 +22,11 @@ class MediaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Media.objects.filter(user=self.request.user)
+        other_user_id = self.request.query_params.get('user')
+        if other_user_id:
+            return Media.objects.filter(user=other_user_id)
+        else:
+            return Media.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

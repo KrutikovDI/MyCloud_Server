@@ -15,8 +15,8 @@ class Media(models.Model):
     last_downloaded = models.DateTimeField(null=True, blank=True)
     
     def save(self, *args, **kwargs):
-        if self.media and ' ' in self.media.name:
-            self.media.name = self.media.name.replace(' ', '__')
+        # if self.media and ' ' in self.media.name:
+        #     self.media.name = self.media.name.replace(' ', '__')
         if self.media:
             self.size = self.media.size
         super().save(*args, **kwargs)
